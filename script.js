@@ -22,17 +22,26 @@ const signupBtn = document.getElementById("signupBtn");
 const sendBtn = document.getElementById("sendBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const deleteChatBtn = document.getElementById("deleteChatBtn");
+const toggleAdminTagBtn = document.getElementById("toggleAdminTagBtn");
+const loginErrorDiv = document.getElementById("loginError");
 
-// Set your admin email (only this account will see the delete button)
-const adminEmail = "steven.darwinson.1@gmail.com";
+// Admin emails array – add as many as needed
+const adminEmails = ["steven.darwinson.1@gmail.com", "otheradmin@example.com"];
+let showAdminTag = true; // Global toggle for displaying admin tag
+
+// Global storage for messages (to enable re-rendering on toggle)
+let messagesData = [];
 
 // Listen to auth state changes
 auth.onAuthStateChanged(user => {
   if (user) {
     loginDiv.style.display = "none";
     chatDiv.style.display = "block";
-    // Show delete button if admin
-    deleteChatBtn.style.display = (user.email === adminEmail) ? "inline-block" : "none";
+    loginErrorDiv.innerText = "";
+    // Show delete button and toggle button if user is an admin
+    const isAdmin = adminEmails.includes(user.email);
+    deleteChatBtn.style.display = isAdmin ? "inline-block" : "none";
+    toggleAdminTagBtn.style.display = isAdmin ? "inline-block" : "none";
     loadMessages();
     startUserValidationCheck();
   } else {
@@ -42,19 +51,31 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// Authentication actions
+// Authentication actions with custom error handling
 loginBtn.addEventListener("click", () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   auth.signInWithEmailAndPassword(email, password)
-    .catch(error => alert(error.message));
+    .catch(error => {
+      if (error.code === "auth/user-disabled") {
+        loginErrorDiv.innerText = "Your account has been disabled by an administrator. Please contact support for further assistance.";
+      } else {
+        loginErrorDiv.innerText = error.message;
+      }
+    });
 });
 
 signupBtn.addEventListener("click", () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   auth.createUserWithEmailAndPassword(email, password)
-    .catch(error => alert(error.message));
+    .catch(error => {
+      if (error.code === "auth/user-disabled") {
+        loginErrorDiv.innerText = "Your account has been disabled by an administrator. Please contact support for further assistance.";
+      } else {
+        loginErrorDiv.innerText = error.message;
+      }
+    });
 });
 
 logoutBtn.addEventListener("click", () => {
@@ -77,7 +98,6 @@ function sendMessage() {
       email: user.email,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
-      // After sending a message, enforce the 25-message limit
       enforceMessageLimit();
     }).catch(error => {
       console.error("Error sending message:", error);
@@ -86,19 +106,31 @@ function sendMessage() {
   }
 }
 
-// Load messages with real-time updates
+// Load messages with real-time updates and store them globally
 function loadMessages() {
   db.collection("messages")
     .orderBy("timestamp", "asc")
     .onSnapshot(snapshot => {
-      messagesDiv.innerHTML = "";
+      messagesData = [];
       snapshot.forEach(doc => {
-        const data = doc.data();
-        const p = document.createElement("p");
-        p.innerHTML = `<strong>${data.email}:</strong> ${data.text}`;
-        messagesDiv.appendChild(p);
+        messagesData.push(doc.data());
       });
+      renderMessages();
     });
+}
+
+// Render messages applying the formatting rules
+function renderMessages() {
+  messagesDiv.innerHTML = "";
+  messagesData.forEach(data => {
+    let username = data.email.split("@")[0]; // Show only before '@'
+    if (adminEmails.includes(data.email) && showAdminTag) {
+      username += " 🛡️";
+    }
+    const p = document.createElement("p");
+    p.innerHTML = `<strong>${username}:</strong> ${data.text}`;
+    messagesDiv.appendChild(p);
+  });
 }
 
 // Ensure that only the most recent 25 messages remain
@@ -110,7 +142,6 @@ function enforceMessageLimit() {
       const messages = snapshot.docs;
       if (messages.length > 25) {
         const excess = messages.length - 25;
-        // Delete the oldest messages first
         for (let i = 0; i < excess; i++) {
           messages[i].ref.delete();
         }
@@ -120,7 +151,8 @@ function enforceMessageLimit() {
 
 // Delete entire chat history (admin-only)
 deleteChatBtn.addEventListener("click", () => {
-  if (auth.currentUser && auth.currentUser.email === adminEmail) {
+  const user = auth.currentUser;
+  if (user && adminEmails.includes(user.email)) {
     if (confirm("Are you sure you want to delete the entire chat history?")) {
       db.collection("messages").get()
         .then(snapshot => {
@@ -133,9 +165,15 @@ deleteChatBtn.addEventListener("click", () => {
         });
     }
   } else {
-    alert("You are not authorized to delete chat history.");
+    loginErrorDiv.innerText = "You are not authorized to delete chat history.";
   }
-}); // <-- Added semicolon here
+});
+
+// Toggle admin tag visibility (admin-only)
+toggleAdminTagBtn.addEventListener("click", () => {
+  showAdminTag = !showAdminTag;
+  renderMessages();
+});
 
 // Periodic user validation every 10 seconds
 let validationInterval;
@@ -144,11 +182,8 @@ function startUserValidationCheck() {
   validationInterval = setInterval(() => {
     const user = auth.currentUser;
     if (user) {
-      // Force reload user data from Firebase
       user.reload()
         .then(() => {
-          // Force refresh the ID token. If the token is invalid or the account is disabled,
-          // this promise will reject.
           user.getIdToken(true).catch(error => {
             console.error("Token refresh error. Logging out...", error);
             auth.signOut();
