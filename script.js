@@ -76,9 +76,9 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (error.code === "auth/invalid-login-credentials") {
           loginErrorDiv.innerText = "Invalid email or password. Please try again.";
         } else if (error.code === "auth/missing-password") {
-          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+          loginErrorDiv.innerText = "Please enter your password.";
         } else if (error.code === "auth/invalid-email") {
-          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+          loginErrorDiv.innerText = "Please enter a valid email address.";
         } else {
           loginErrorDiv.innerText = "Unknown error.";
         }
@@ -95,13 +95,13 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (error.code === "auth/invalid-login-credentials") {
           loginErrorDiv.innerText = "Invalid email or password. Please try again.";
         } else if (error.code === "auth/missing-password") {
-          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+          loginErrorDiv.innerText = "Please enter your password.";
         } else if (error.code === "auth/invalid-email") {
-          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+          loginErrorDiv.innerText = "Please enter a valid email address.";
         } else if (error.code === "auth/weak-password") {
-          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+          loginErrorDiv.innerText = "Your password is too weak. Please choose a stronger one.";
         } else if (error.code === "auth/email-already-in-use") {
-          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+          loginErrorDiv.innerText = "An account with this email already exists.";
         } else {
           loginErrorDiv.innerText = "Unknown error.";
         }
