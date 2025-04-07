@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function() {
     messagesData.forEach(data => {
       let username = data.email.split("@")[0]; // Show only before '@'
       if (adminEmails.includes(data.email) && showAdminTag) {
-        username += " 🛡️";
+        username += " [🦐]";
       }
       const p = document.createElement("p");
       p.innerHTML = `<strong>${username}:</strong> ${data.text}`;
