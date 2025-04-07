@@ -32,3 +32,8 @@ button {
   padding: 10px;
   margin-bottom: 10px;
 }
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
