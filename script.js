@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", function() {
   // Declare validationInterval at the top so it’s available to all functions.
   let validationInterval;
 
@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleAdminTagBtn = document.getElementById("toggleAdminTagBtn");
   const loginErrorDiv = document.getElementById("loginError");
 
+  // Ensure all required elements exist
+  if (!loginBtn || !signupBtn || !sendBtn || !logoutBtn) {
+    console.error("One or more required elements were not found in the HTML. Please check your element IDs.");
+    return;
+  }
+
   // Admin emails array – add as many as needed
   const adminEmails = ["steven.darwinson.1@gmail.com", "otheradmin@example.com"];
   let showAdminTag = true; // Global toggle for displaying admin tag
@@ -44,8 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
       loginErrorDiv.innerText = "";
       // Show admin buttons if user is an admin
       const isAdmin = adminEmails.includes(user.email);
-      deleteChatBtn.style.display = isAdmin ? "inline-block" : "none";
-      toggleAdminTagBtn.style.display = isAdmin ? "inline-block" : "none";
+      if (deleteChatBtn) {
+        deleteChatBtn.style.display = isAdmin ? "inline-block" : "none";
+      }
+      if (toggleAdminTagBtn) {
+        toggleAdminTagBtn.style.display = isAdmin ? "inline-block" : "none";
+      }
       loadMessages();
       startUserValidationCheck();
     } else {
@@ -129,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     messagesData.forEach(data => {
       let username = data.email.split("@")[0]; // Show only before '@'
       if (adminEmails.includes(data.email) && showAdminTag) {
-        username += " (admin)";
+        username += " 🛡️";
       }
       const p = document.createElement("p");
       p.innerHTML = `<strong>${username}:</strong> ${data.text}`;
@@ -154,30 +164,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Delete entire chat history (admin-only)
-  deleteChatBtn.addEventListener("click", () => {
-    const user = auth.currentUser;
-    if (user && adminEmails.includes(user.email)) {
-      if (confirm("Are you sure you want to delete the entire chat history?")) {
-        db.collection("messages").get()
-          .then(snapshot => {
-            snapshot.forEach(doc => {
-              doc.ref.delete();
+  if (deleteChatBtn) {
+    deleteChatBtn.addEventListener("click", () => {
+      const user = auth.currentUser;
+      if (user && adminEmails.includes(user.email)) {
+        if (confirm("Are you sure you want to delete the entire chat history?")) {
+          db.collection("messages").get()
+            .then(snapshot => {
+              snapshot.forEach(doc => {
+                doc.ref.delete();
+              });
+            })
+            .catch(error => {
+              console.error("Error deleting chat history:", error);
             });
-          })
-          .catch(error => {
-            console.error("Error deleting chat history:", error);
-          });
+        }
+      } else {
+        loginErrorDiv.innerText = "You are not authorized to delete chat history.";
       }
-    } else {
-      loginErrorDiv.innerText = "You are not authorized to delete chat history.";
-    }
-  });
+    });
+  }
 
   // Toggle admin tag visibility (admin-only)
-  toggleAdminTagBtn.addEventListener("click", () => {
-    showAdminTag = !showAdminTag;
-    renderMessages();
-  });
+  if (toggleAdminTagBtn) {
+    toggleAdminTagBtn.addEventListener("click", () => {
+      showAdminTag = !showAdminTag;
+      renderMessages();
+    });
+  }
 
   // Periodic user validation every 10 seconds
   function startUserValidationCheck() {
