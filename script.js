@@ -135,7 +135,7 @@ deleteChatBtn.addEventListener("click", () => {
   } else {
     alert("You are not authorized to delete chat history.");
   }
-}
+})
 
 // Periodic user validation every 10 seconds
 let validationInterval;
