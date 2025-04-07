@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // Admin emails array – add as many as needed
-  const adminEmails = ["steven.darwinson.1@gmail.com", "otheradmin@example.com"];
+  const adminEmails = ["steven@sigmachatsys.com", "otheradmin@example.com"];
   let showAdminTag = true; // Global toggle for displaying admin tag
 
   // Global storage for messages (to enable re-rendering on toggle)
