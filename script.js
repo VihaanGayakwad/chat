@@ -92,8 +92,18 @@ document.addEventListener("DOMContentLoaded", function() {
       .catch(error => {
         if (error.code === "auth/user-disabled") {
           loginErrorDiv.innerText = "Access to your account has been restricted by an administrator.";
+        } else if (error.code === "auth/invalid-login-credentials") {
+          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+        } else if (error.code === "auth/missing-password") {
+          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+        } else if (error.code === "auth/invalid-email") {
+          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+        } else if (error.code === "auth/weak-password") {
+          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
+        } else if (error.code === "auth/email-already-in-use") {
+          loginErrorDiv.innerText = "Invalid email or password. Please try again.";
         } else {
-          loginErrorDiv.innerText = error.message;
+          loginErrorDiv.innerText = "Unknown error.";
         }
       });
   });
