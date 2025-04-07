@@ -4,26 +4,29 @@
   <meta charset="UTF-8">
   <title>Firebase Chat App</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Firebase SDKs (using compat libraries) -->
+  <!-- Firebase SDKs (compat libraries for simplicity) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <div id="login">
-    <h2>Login / Sign Up</h2>
+    <h2>Login</h2>
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Password">
+    <!-- Error messages appear here -->
+    <div id="loginError" class="error"></div>
     <button id="loginBtn">Login</button>
-    <button id="signupBtn">Sign Up</button>
+   <!-- <button id="signupBtn">Sign Up</button> -->
   </div>
 
   <div id="chat" style="display:none;">
-    <h2>Chat Room</h2>
+    <h2>Sigma Chat Room</h2>
     <div id="messages"></div>
     <input type="text" id="messageInput" placeholder="Type your message here...">
     <button id="sendBtn">Send</button>
-    <!-- Delete button visible only for admin users -->
+    <!-- Admin-only buttons -->
+    <button id="toggleAdminTagBtn" style="display:none;">Toggle Admin Tag</button>
     <button id="deleteChatBtn" style="display:none;">Delete Entire Chat</button>
     <button id="logoutBtn">Logout</button>
   </div>
