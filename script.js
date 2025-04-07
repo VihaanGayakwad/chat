@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function() {
     auth.signInWithEmailAndPassword(email, password)
       .catch(error => {
         if (error.code === "auth/user-disabled") {
-          loginErrorDiv.innerText = "Your account has been disabled by an administrator. Please contact support for further assistance.";
+          loginErrorDiv.innerText = "Access to your account has been restricted by an administrator.";
         } else {
           loginErrorDiv.innerText = error.message;
         }
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
     auth.createUserWithEmailAndPassword(email, password)
       .catch(error => {
         if (error.code === "auth/user-disabled") {
-          loginErrorDiv.innerText = "Your account has been disabled by an administrator. Please contact support for further assistance.";
+          loginErrorDiv.innerText = "Access to your account has been restricted by an administrator.";
         } else {
           loginErrorDiv.innerText = error.message;
         }
